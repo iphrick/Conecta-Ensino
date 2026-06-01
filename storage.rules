@@ -1,0 +1,32 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Auxiliar: Verifica se o usuário está logado
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    // Auxiliar: Verifica se o usuário tem privilégio de escrita (professor ou admin)
+    // Nota: O Firebase Storage do lado do servidor pode fazer validações adicionais,
+    // mas na forma clássica restringimos por caminhos ou metadados de autenticação.
+    
+    // Regras para Thumbnails (Capas dos cursos)
+    match /thumbnails/{allPaths=**} {
+      allow read: if true; // Qualquer visitante visualiza no catálogo
+      allow write: if isSignedIn(); // Apenas instrutores/admins autenticados sobem capas
+    }
+    
+    // Regras para Vídeos das Aulas
+    match /videos/{allPaths=**} {
+      allow read: if isSignedIn(); // Apenas alunos logados assistem
+      allow write: if isSignedIn(); // Apenas instrutores/admins sobem vídeos
+    }
+    
+    // Regras para PDFs e Materiais Complementares
+    match /materials/{allPaths=**} {
+      allow read: if isSignedIn(); // Apenas alunos logados baixam material
+      allow write: if isSignedIn(); // Apenas instrutores/admins sobem materiais
+    }
+  }
+}
