@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as zod from "zod";
@@ -26,7 +26,10 @@ export default function RegisterPage() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedRole, setSelectedRole] = useState<"student" | "teacher">("student");
+  const searchParams = useSearchParams();
+  const isAdminSecret = searchParams.get("admin") === "true";
+
+  const [selectedRole, setSelectedRole] = useState<"student" | "teacher" | "admin">("student");
 
   const {
     register,
@@ -55,7 +58,7 @@ export default function RegisterPage() {
     }
   };
 
-  const handleRoleToggle = (role: "student" | "teacher") => {
+  const handleRoleToggle = (role: "student" | "teacher" | "admin") => {
     setSelectedRole(role);
     setValue("role", role);
   };
@@ -120,7 +123,7 @@ export default function RegisterPage() {
             {/* Seletor de Tipo de Perfil (Role Selector) */}
             <div className="space-y-2">
               <label className="text-xs font-bold text-muted-foreground uppercase tracking-wide">Quero me cadastrar como:</label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className={`grid gap-3 ${isAdminSecret ? "grid-cols-3" : "grid-cols-2"}`}>
                 <button
                   type="button"
                   onClick={() => handleRoleToggle("student")}
@@ -131,8 +134,8 @@ export default function RegisterPage() {
                   }`}
                 >
                   <GraduationCap className="h-6 w-6 mb-1.5" />
-                  <span className="text-sm font-bold">Aluno</span>
-                  <span className="text-[10px] opacity-80 mt-0.5">Assistir e aprender</span>
+                  <span className="text-sm font-bold truncate w-full">Aluno</span>
+                  <span className="text-[10px] opacity-80 mt-0.5 truncate w-full">Assistir</span>
                 </button>
 
                 <button
@@ -145,9 +148,25 @@ export default function RegisterPage() {
                   }`}
                 >
                   <ShieldCheck className="h-6 w-6 mb-1.5" />
-                  <span className="text-sm font-bold">Instrutor</span>
-                  <span className="text-[10px] opacity-80 mt-0.5">Criar e publicar cursos</span>
+                  <span className="text-sm font-bold truncate w-full">Instrutor</span>
+                  <span className="text-[10px] opacity-80 mt-0.5 truncate w-full">Publicar</span>
                 </button>
+
+                {isAdminSecret && (
+                  <button
+                    type="button"
+                    onClick={() => handleRoleToggle("admin")}
+                    className={`flex flex-col items-center p-3 rounded-2xl border text-center transition-all cursor-pointer ${
+                      selectedRole === "admin"
+                        ? "border-primary bg-primary/5 text-primary ring-2 ring-primary/25"
+                        : "border-border bg-card hover:bg-secondary text-muted-foreground"
+                    }`}
+                  >
+                    <Lock className="h-6 w-6 mb-1.5" />
+                    <span className="text-sm font-bold truncate w-full">Admin</span>
+                    <span className="text-[10px] opacity-80 mt-0.5 truncate w-full">Gestão</span>
+                  </button>
+                )}
               </div>
             </div>
 
