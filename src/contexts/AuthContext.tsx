@@ -231,13 +231,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (isMock) {
         // Adiciona um aluno/professor dinamicamente no mock com status 'pending' por padrão
         const newUid = `mock-${role}-${Date.now()}`;
+        const initialStatus = role === "admin" ? "approved" : "pending";
         const newProfile: UserProfile = {
           id: newUid,
           name,
           email,
           photoURL: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}`,
           role,
-          status: "pending", // NOVO USUÁRIO CADASTRA COMO PENDENTE
+          status: initialStatus,
           createdAt: new Date().toISOString()
         };
         
@@ -261,18 +262,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         document.cookie = `conecta-session=active; path=/; max-age=86400; SameSite=Lax`;
         document.cookie = `conecta-role=${role}; path=/; max-age=86400; SameSite=Lax`;
-        document.cookie = `conecta-status=pending; path=/; max-age=86400; SameSite=Lax`;
+        document.cookie = `conecta-status=${initialStatus}; path=/; max-age=86400; SameSite=Lax`;
       } else {
         // Fluxo Real
         const userCredential = await fbCreateUser(auth, email, password);
         const fbUser = userCredential.user;
+        const initialStatus = role === "admin" ? "approved" : "pending";
         const newProfile: UserProfile = {
           id: fbUser.uid,
           name,
           email,
           photoURL: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}`,
           role,
-          status: "pending", // CADASTRO INICIAL REAL É PENDENTE
+          status: initialStatus,
           createdAt: new Date().toISOString()
         };
         // Grava no Firestore
@@ -282,7 +284,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         document.cookie = `conecta-session=active; path=/; max-age=86400; SameSite=Lax`;
         document.cookie = `conecta-role=${role}; path=/; max-age=86400; SameSite=Lax`;
-        document.cookie = `conecta-status=pending; path=/; max-age=86400; SameSite=Lax`;
+        document.cookie = `conecta-status=${initialStatus}; path=/; max-age=86400; SameSite=Lax`;
       }
     } catch (error: any) {
       setLoading(false);
