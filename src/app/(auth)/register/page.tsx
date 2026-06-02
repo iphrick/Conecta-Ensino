@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -20,7 +20,7 @@ const registerSchema = zod.object({
 
 type RegisterFormValues = zod.infer<typeof registerSchema>;
 
-export default function RegisterPage() {
+function RegisterPageContent() {
   const { register: signUpUser } = useAuth();
   const router = useRouter();
 
@@ -253,5 +253,13 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+      <RegisterPageContent />
+    </Suspense>
   );
 }
