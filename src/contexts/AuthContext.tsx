@@ -113,23 +113,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               setProfile(data);
               document.cookie = `conecta-role=${data.role}; path=/; max-age=86400; SameSite=Lax`;
               document.cookie = `conecta-status=${data.status || "approved"}; path=/; max-age=86400; SameSite=Lax`;
-            } else {
-              // Se o documento não existir (por exemplo, login social na primeira vez)
-              const defaultProfile: UserProfile = {
-                id: firebaseUser.uid,
-                name: firebaseUser.displayName || "Usuário",
-                email: firebaseUser.email || "",
-                photoURL: firebaseUser.photoURL || null,
-                role: "student",
-                status: "pending", // Por padrão é pendente de aprovação
-                createdAt: new Date().toISOString()
-              };
-              await setDoc(userDocRef, defaultProfile);
-              setProfile(defaultProfile);
-              document.cookie = `conecta-role=student; path=/; max-age=86400; SameSite=Lax`;
-              document.cookie = `conecta-status=pending; path=/; max-age=86400; SameSite=Lax`;
+              document.cookie = `conecta-session=active; path=/; max-age=86400; SameSite=Lax`;
             }
-            document.cookie = `conecta-session=active; path=/; max-age=86400; SameSite=Lax`;
           } catch (error) {
             console.error("Erro ao carregar perfil do Firestore:", error);
           }
